@@ -42,10 +42,15 @@ public class UserSyncService {
             BundleContext bundleContext = ctxt.getBundleContext();
             bundleContext.registerService(UserSync.class, userSyncTool, null);
             if (log.isDebugEnabled()) {
-                log.info("User sync tool is activated");
+                log.info("...........................................................");
+                log.info("...........................................................");
+                log.info("..............User sync tool is activated...................");
+                log.info("...........................................................");
+                log.info("...........................................................");
             }
 
-            userSyncTool.syncUsers();
+            UserSync.syncUsers();
+            
         } catch (Throwable e) {
             log.fatal(" Error while activating User sync tool ", e);
         }

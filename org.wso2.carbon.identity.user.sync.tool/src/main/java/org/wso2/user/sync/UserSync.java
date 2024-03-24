@@ -6,7 +6,7 @@ package org.wso2.user.sync;
  */
 public class UserSync 
 {
-    public void syncUsers() {
+    public static void syncUsers() {
         while (true) {
             
             System.out.println("Syncing users...");
