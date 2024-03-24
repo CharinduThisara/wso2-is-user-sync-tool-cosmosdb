@@ -81,11 +81,11 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Private-Package>
-                            org.wso2.carbon.identity.custom.federated.authenticator.internal
+                            org.wso2.user.sync
                         </Private-Package>
                         <Export-Package>
-                            !org.wso2.carbon.identity.custom.federated.authenticator.internal,
-                            org.wso2.carbon.identity.custom.federated.authenticator.*; version="1.0.0"
+                            !org.wso2.user.sync.internal,
+                            org.wso2.user.sync.*; version="1.0.0"
                         </Export-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
