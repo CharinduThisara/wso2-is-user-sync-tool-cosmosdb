@@ -15,7 +15,7 @@ import com.sync.tool.SyncTool;
 )
 public class SyncToolService {
 
-    private static final Log log = LogFactory.getLog(SyncTool.class);
+    private static final Log log = LogFactory.getLog(SyncToolService.class);
     private static RealmService realmService;
 
     @Activate

@@ -9,4 +9,4 @@ rm $home_path/.env
 cp ../.env $home_path/
 cp src/main/resources/reference.conf ../wso2is-7.0.0/repository/conf/
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-sh $home_path/bin/wso2server.sh -DosgiConsole
+sh $home_path/bin/wso2server.sh

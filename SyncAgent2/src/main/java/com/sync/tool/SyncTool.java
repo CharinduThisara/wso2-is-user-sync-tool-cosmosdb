@@ -115,6 +115,8 @@ public class SyncTool {
             central_us = true;
         }
 
+        connectCosmos();
+
         try {
             System.out.println("Connected to Cassandra.");
 
