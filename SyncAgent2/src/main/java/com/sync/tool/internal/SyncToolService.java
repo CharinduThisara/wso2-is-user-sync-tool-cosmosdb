@@ -6,25 +6,36 @@ import org.osgi.service.component.annotations.*;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import com.sync.tool.Readagent;
+import com.sync.tool.SyncTool;
+
 
 @Component(
     name = "com.sync.tool",
     immediate = true
 )
-public class ReadagentServiceComponent {
+public class SyncToolService {
 
-    private static final Log log = LogFactory.getLog(Readagent.class);
+    private static final Log log = LogFactory.getLog(SyncTool.class);
     private static RealmService realmService;
 
     @Activate
     protected void activate(ComponentContext context) {
         BundleContext bundleContext = context.getBundleContext();
-        bundleContext.registerService(Readagent.class.getName(), new Readagent(), null);
-        log.info("Readagent bundle is activated");
+        SyncTool syncTool = new SyncTool();
+        bundleContext.registerService(SyncTool.class.getName(), syncTool, null);
+        log.info("SyncTool bundle is activated");
         log.info("-------------------------------------");
         log.info("-------------------------------------");
-        Readagent.read();
+        log.info("-------------------------------------");
+        log.info("-------------------------------------");
+
+        syncTool.read();
+
+    }
+
+    @Deactivate
+    protected void deactivate(ComponentContext context) {
+        log.info("SyncTool bundle is deactivated");
     }
     
 }

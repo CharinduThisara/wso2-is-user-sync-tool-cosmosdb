@@ -9,27 +9,25 @@ import org.apache.commons.logging.LogFactory;
 
 import groovy.transform.builder.InitializerStrategy.SET;
 
+import java.io.File;
 import java.net.InetSocketAddress;
 import java.security.KeyStore;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
+import com.datastax.oss.driver.api.core.config.DriverConfigLoader;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
-public class Readagent {
-    private static final Log log = LogFactory.getLog(Readagent.class);
+public class SyncTool {
+    private static final Log log = LogFactory.getLog(SyncTool.class);
+    private static String COSMOS_CONFIG_PATH;
+    private CqlSession session;
+    private String cassandraKeyspace;
+    private String cassandraTable;
 
-    public static CqlSession connectToCassandra(Dotenv dotenv) {
-
-        // Load environment variables from .env file
-        String cassandraHost = dotenv.get("COSMOS_CONTACT_POINT");
-        int cassandraPort = Integer.parseInt(dotenv.get("COSMOS_PORT"));
-
-        String cassandraUsername = dotenv.get("COSMOS_USER_NAME");
-        String cassandraPassword = dotenv.get("COSMOS_PASSWORD");   
-        String region = dotenv.get("COSMOS_REGION");     
+    public void connectCosmos() {
 
         SSLContext sc = null;
         try{
@@ -42,18 +40,33 @@ public class Readagent {
 
             sc = SSLContext.getInstance("TLSv1.2");
             sc.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+
+            Dotenv dotenv = Dotenv.configure().load();
+
+            COSMOS_CONFIG_PATH = dotenv.get("COSMOS_CONFIG_PATH");
+            String cassandraHost = dotenv.get("COSMOS_CONTACT_POINT");
+            int cassandraPort = Integer.parseInt(dotenv.get("COSMOS_PORT"));
+            String region = dotenv.get("COSMOS_REGION");
+            String cassandraUsername = dotenv.get("COSMOS_USER_NAME");
+            String cassandraPassword = dotenv.get("COSMOS_PASSWORD");
+            cassandraKeyspace = dotenv.get("COSMOS_KEYSPACE");
+            cassandraTable = dotenv.get("COSMOS_TABLE");
+        
+            DriverConfigLoader loader = DriverConfigLoader.fromFile(new File(COSMOS_CONFIG_PATH));
+
+            System.out.println("Connecting to Cosmos "+cassandraHost+":"+cassandraPort+" with keyspace: "+cassandraKeyspace+" and table: "+cassandraTable);
+
+            this.session = CqlSession.builder().withSslContext(sc)
+            .addContactPoint(new InetSocketAddress(cassandraHost, cassandraPort)).withLocalDatacenter(region)
+            .withConfigLoader(loader)   
+            .withAuthCredentials(cassandraUsername, cassandraPassword).build();
+            
         }
         catch (Exception e) {
-            System.out.println("Error creating keystore");
+            System.out.println("Error creating session");
             e.printStackTrace();
-        } 
+        }
 
-        CqlSession session = CqlSession.builder().withSslContext(sc)
-        .addContactPoint(new InetSocketAddress(cassandraHost, cassandraPort)).withLocalDatacenter(region)
-        .withAuthCredentials(cassandraUsername, cassandraPassword).build();
-
-        System.out.println("Creating session: " + session.getName());
-        return session;
     }
 
     public static void printData(ResultSet resultSet) {
@@ -86,12 +99,13 @@ public class Readagent {
         }
     }
 
-    public static void read() {
+    public void read() {
         Dotenv dotenv = Dotenv.load();
 
         String keyspace = dotenv.get("CASSANDRA_KEYSPACE");
         String table = dotenv.get("CASSANDRA_TABLE");
         String region = dotenv.get("COSMOS_REGION");
+        
         
         // set a variable to boolean false if region is central_us
         boolean central_us;
@@ -101,7 +115,7 @@ public class Readagent {
             central_us = true;
         }
 
-        try (CqlSession session = connectToCassandra(dotenv)){
+        try {
             System.out.println("Connected to Cassandra.");
 
             String query = String.format("SELECT * FROM %s.%s WHERE central_us = %s ALLOW FILTERING;", keyspace, table, central_us);
@@ -120,9 +134,6 @@ public class Readagent {
             System.err.println("Error: " + e);
         }
     }
-    public static void main(String[] args) {
-        System.out.println("Starting Read Agent...");
-        read();
-    }
+  
 
 }
