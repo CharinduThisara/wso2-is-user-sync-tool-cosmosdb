@@ -24,6 +24,10 @@ import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.user.sync.UserSync;
 
 @Component(
@@ -33,6 +37,7 @@ import org.wso2.user.sync.UserSync;
 public class UserSyncService {
 
     private static final Log log = LogFactory.getLog(UserSyncService.class);
+    private static RealmService realmService;
 
     @Activate
     protected void activate(ComponentContext ctxt) {
@@ -72,5 +77,27 @@ public class UserSyncService {
         if (log.isDebugEnabled()) {
             log.info("User sync tool is deactivated");
         }
+    }
+
+    public static RealmService getRealmService() {
+
+        return realmService;
+    }
+
+     @Reference(name = "realm.service",
+            service = org.wso2.carbon.user.core.service.RealmService.class,
+            cardinality = ReferenceCardinality.MANDATORY,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetRealmService")
+    protected void setRealmService(RealmService realmService) {
+
+        log.debug("Setting the Realm Service");
+        UserSyncService.realmService = realmService;
+    }
+
+    protected void unsetRealmService(RealmService realmService) {
+
+        log.debug("UnSetting the Realm Service");
+        UserSyncService.realmService = null;
     }
 }
