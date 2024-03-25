@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.user.sync.internal;
+package com.sync.tool.internal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,51 +28,34 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.user.core.service.RealmService;
-import org.wso2.user.sync.UserSync;
+import com.sync.tool.UserSync;
 
 @Component(
-        name = "user.sync.tool",
+        name = "com.sync.tool",
         immediate = true
 )
 public class UserSyncService {
 
-    private static final Log log = LogFactory.getLog(UserSyncService.class);
+    private static final Log log = LogFactory.getLog(UserSync.class);
     private static RealmService realmService;
 
     @Activate
-    protected void activate(ComponentContext ctxt) {
+    protected void activate(ComponentContext context) {
+        
+        BundleContext bundleContext = context.getBundleContext();
+        bundleContext.registerService(UserSync.class.getName(), new UserSync(), null);
+        
         log.info("...........................................................");
-                log.info("...........................................................");
-                log.info("..............User sync tool is activated...................");
-                log.info("...........................................................");
-                log.info("...........................................................");
-        try {
-            UserSync userSyncTool = new UserSync();
-            BundleContext bundleContext = ctxt.getBundleContext();
-            bundleContext.registerService(UserSync.class, userSyncTool, null);
-            if (log.isDebugEnabled()) {
-                log.info("...........................................................");
-                log.info("...........................................................");
-                log.info("..............User sync tool is activated...................");
-                log.info("...........................................................");
-                log.info("...........................................................");
-            }
-
-            log.info("...........................................................");
-            log.info("...........................................................");
-            log.info("..............User sync tool is activated...................");
-            log.info("...........................................................");
-            log.info("...........................................................");
-
-            UserSync.syncUsers();
-            
-        } catch (Throwable e) {
-            log.fatal(" Error while activating User sync tool ", e);
-        }
+        log.info("...........................................................");
+        log.info("..............User sync tool is activating...................");
+        log.info("...........................................................");
+        log.info("...........................................................");
+        UserSync.syncUsers();
+   
     }
 
     @Deactivate
-    protected void deactivate(ComponentContext ctxt) {
+    protected void deactivate(ComponentContext context) {
 
         if (log.isDebugEnabled()) {
             log.info("User sync tool is deactivated");
@@ -84,7 +67,7 @@ public class UserSyncService {
         return realmService;
     }
 
-     @Reference(name = "realm.service",
+    @Reference(name = "user.realmservice.default",
             service = org.wso2.carbon.user.core.service.RealmService.class,
             cardinality = ReferenceCardinality.MANDATORY,
             policy = ReferencePolicy.DYNAMIC,

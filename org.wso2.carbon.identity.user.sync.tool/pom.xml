@@ -15,14 +15,13 @@
   ~ limitations under the License.
   -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-
-    <groupId>org.wso2.user.sync</groupId>
-    <artifactId>org.wso2.carbon.identity.user.sync.tool</artifactId>
+    <groupId>com.user.sync</groupId>
+    <artifactId>com.user.sync.tool</artifactId>
     <version>1.0.0</version>
     <packaging>bundle</packaging>
     <name>WSO2-IS User-sync-tool CosmosDB</name>
-    <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.wso2.carbon</groupId>
@@ -43,60 +42,15 @@
         <dependency>
             <groupId>com.datastax.oss</groupId>
             <artifactId>java-driver-core</artifactId>
-            <version>4.1.0</version> <!-- Replace with the latest version -->
+            <version>4.5.1</version> <!-- Replace with the latest version -->
+        </dependency>
+        <dependency>
+            <groupId>io.github.cdimascio</groupId>
+            <artifactId>dotenv-java</artifactId>
+            <version>2.2.0</version> <!-- Use the appropriate version -->
         </dependency>
           
     </dependencies>
-
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.felix</groupId>
-                    <artifactId>maven-bundle-plugin</artifactId>
-                    <version>3.2.0</version>
-                    <extensions>true</extensions>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-
-        <plugins>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.1</version>
-                <inherited>true</inherited>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Bundle-Name>${project.artifactId}</Bundle-Name>
-                        <Private-Package>
-                            org.wso2.user.sync
-                        </Private-Package>
-                        <Import-Package>
-                            org.wso2.carbon.core.*,
-                            org.osgi.framework,
-                            ;resolution:=optional,
-                        </Import-Package>
-                        <Export-Package>
-                            !org.wso2.user.sync.internal,
-                            org.wso2.user.sync.*
-                        </Export-Package>
-                        <DynamicImport-Package>*</DynamicImport-Package>
-                    </instructions>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 
     <repositories>
         <repository>
@@ -111,12 +65,38 @@
         </repository>
     </repositories>
 
-    <pluginRepositories>
-        <pluginRepository>
-            <id>wso2-maven2-repository</id>
-            <url>http://dist.wso2.org/maven2</url>
-        </pluginRepository>
-    </pluginRepositories>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Name>${project.artifactId}</Bundle-Name>
+                        <Private-Package>
+                            org.wso2.custom.user.sync
+                        </Private-Package>
+                        <Import-Package>
+                            org.wso2.carbon.core.*,
+                            org.osgi.framework,
+                            ;resolution:=optional,
+                            org.apache.axiom.*; version
+                            ="${axiom.osgi.version.range}",
+                            org.osgi.framework; version="${import.osgi.framework.version.range}",
+                            org.osgi.service.component; version="${import.osgi.service.component.version.range}"
+                        </Import-Package>
+                        <Export-Package>
+                            !com.sync.tool.internal,
+                            com.sync.tool.*
+                        </Export-Package>
+                        <DynamicImport-Package>*</DynamicImport-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
