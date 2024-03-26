@@ -7,6 +7,8 @@ cp target/com.sync.tool-1.0-SNAPSHOT.jar $home_path/repository/components/dropin
 
 rm $home_path/.env
 cp ../.env $home_path/
-cp src/main/resources/reference.conf ../wso2is-7.0.0/repository/conf/
+
+rm $home_path/repository/conf/reference.conf
+cp src/main/resources/reference.conf $home_path/repository/conf/
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 sh $home_path/bin/wso2server.sh

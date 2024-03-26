@@ -17,13 +17,17 @@ public class SyncToolService {
 
     private static final Log log = LogFactory.getLog(SyncToolService.class);
     private static RealmService realmService;
+    private static SyncTool syncTool;
 
     @Activate
     protected void activate(ComponentContext context) {
         BundleContext bundleContext = context.getBundleContext();
-        SyncTool syncTool = new SyncTool();
+        syncTool = new SyncTool();
         bundleContext.registerService(SyncTool.class.getName(), syncTool, null);
         log.info("SyncTool bundle is activated");
+        log.info("-------------------------------------");
+        log.info("-------------------------------------");
+        log.info("-------------------------------------");
         log.info("-------------------------------------");
         log.info("-------------------------------------");
         log.info("-------------------------------------");
@@ -36,6 +40,25 @@ public class SyncToolService {
     @Deactivate
     protected void deactivate(ComponentContext context) {
         log.info("SyncTool bundle is deactivated");
+        syncTool.close();
+    }
+
+    @Reference(
+        name = "realm.service",
+        service = RealmService.class,
+        cardinality = ReferenceCardinality.MANDATORY,
+        policy = ReferencePolicy.DYNAMIC,
+        unbind = "unsetRealmService"
+    )
+    protected void setRealmService(RealmService realmService) {
+        SyncToolService.realmService = realmService;
+    }
+
+    protected void unsetRealmService(RealmService realmService) {
+        SyncToolService.realmService = null;
     }
     
+    public static RealmService getRealmService() {
+        return realmService;
+    }
 }

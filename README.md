@@ -12,6 +12,8 @@ This tool is capable of fetching User data from Azure Cosmos DB and store in the
 
 mvn clean install
 
+mvn exec:java -Dexec.mainClass="com.sync.tool.SyncTool"
+
 ## Usage
 
 Use the Build Script with the given instructions.

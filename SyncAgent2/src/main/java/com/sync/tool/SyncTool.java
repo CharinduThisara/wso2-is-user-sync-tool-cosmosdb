@@ -7,8 +7,6 @@ import com.datastax.oss.driver.api.core.cql.Row;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import groovy.transform.builder.InitializerStrategy.SET;
-
 import java.io.File;
 import java.net.InetSocketAddress;
 import java.security.KeyStore;
@@ -51,6 +49,8 @@ public class SyncTool {
             String cassandraPassword = dotenv.get("COSMOS_PASSWORD");
             cassandraKeyspace = dotenv.get("COSMOS_KEYSPACE");
             cassandraTable = dotenv.get("COSMOS_TABLE");
+
+            System.out.println("COSMOS_CONFIG_PATH: "+COSMOS_CONFIG_PATH);
         
             DriverConfigLoader loader = DriverConfigLoader.fromFile(new File(COSMOS_CONFIG_PATH));
 
@@ -71,17 +71,6 @@ public class SyncTool {
 
     public static void printData(ResultSet resultSet) {
         for (Row row : resultSet) {
-            // // Access individual columns and print their values
-            // CREATE TABLE IF NOT EXISTS users (
-            // user_id TEXT PRIMARY KEY, 
-            // username TEXT,
-            // credential TEXT,
-            // role_list SET<TEXT>,
-            // claims MAP<TEXT, TEXT>,
-            // profile TEXT,
-            // central_us BOOLEAN,
-            // east_us BOOLEAN,);
-            // above is the schema of the table
 
             String user_id = row.getString("user_id");
             String username = row.getString("username");
@@ -92,8 +81,16 @@ public class SyncTool {
             boolean central_us = row.getBoolean("central_us");
             boolean east_us = row.getBoolean("east_us");
 
-            System.out.printf("User ID: %s, Username: %s, Credential: %s, Role List: %s, Claims: %s, Profile: %s, Central US: %s, East US: %s\n",
-                    user_id, username, credential, role_list, claims, profile, central_us, east_us);
+            System.out.println("User ID: " + user_id);
+            System.out.println("Username: " + username);
+            System.out.println("Credential: " + credential);
+            System.out.println("Role List: " + role_list);
+            System.out.println("Claims: " + claims);
+            System.out.println("Profile: " + profile);
+            System.out.println("Central US: " + central_us);
+            System.out.println("East US: " + east_us);
+
+        System.out.println();
 
             System.out.println();
         }
@@ -103,10 +100,10 @@ public class SyncTool {
         Dotenv dotenv = Dotenv.load();
 
         String keyspace = dotenv.get("CASSANDRA_KEYSPACE");
-        String table = dotenv.get("CASSANDRA_TABLE");
+        String table = dotenv.get("COSMOS_TABLE");
         String region = dotenv.get("COSMOS_REGION");
         
-        
+        System.out.println("Keyspace: "+keyspace + " Table: "+table + " Region: "+region);
         // set a variable to boolean false if region is central_us
         boolean central_us;
         if (region.equals("Central US")) {
@@ -115,9 +112,9 @@ public class SyncTool {
             central_us = true;
         }
 
-        connectCosmos();
-
+        
         try {
+            connectCosmos();
             System.out.println("Connected to Cassandra.");
 
             String query = String.format("SELECT * FROM %s.%s WHERE central_us = %s ALLOW FILTERING;", keyspace, table, central_us);
@@ -135,6 +132,20 @@ public class SyncTool {
         } catch (Exception e) {
             System.err.println("Error: " + e);
         }
+    }
+
+    public void close() {
+        session.close();
+    }
+
+    public static void main(String[] args) {
+        SyncTool syncTool = new SyncTool();
+        syncTool.connectCosmos();
+        System.out.println("Connected to Cosmos");
+        System.out.println("..........................................");
+        System.out.println("..........................................");
+        syncTool.read();
+
     }
   
 
