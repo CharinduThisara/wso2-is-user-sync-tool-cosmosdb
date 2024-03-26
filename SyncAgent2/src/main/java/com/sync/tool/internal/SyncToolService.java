@@ -7,6 +7,8 @@ import org.wso2.carbon.user.core.service.RealmService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import com.sync.tool.SyncTool;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 @Component(
@@ -18,6 +20,7 @@ public class SyncToolService {
     private static final Log log = LogFactory.getLog(SyncToolService.class);
     private static RealmService realmService;
     private static SyncTool syncTool;
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @Activate
     protected void activate(ComponentContext context) {
@@ -33,7 +36,7 @@ public class SyncToolService {
         log.info("-------------------------------------");
         log.info("-------------------------------------");
 
-        syncTool.read();
+        executorService.submit(() -> syncTool.read());
 
     }
 
@@ -41,6 +44,7 @@ public class SyncToolService {
     protected void deactivate(ComponentContext context) {
         log.info("SyncTool bundle is deactivated");
         syncTool.close();
+        executorService.shutdown();
     }
 
     @Reference(

@@ -24,6 +24,7 @@ public class SyncTool {
     private CqlSession session;
     private String cassandraKeyspace;
     private String cassandraTable;
+    private String region;
 
     public void connectCosmos() {
 
@@ -44,11 +45,11 @@ public class SyncTool {
             COSMOS_CONFIG_PATH = dotenv.get("COSMOS_CONFIG_PATH");
             String cassandraHost = dotenv.get("COSMOS_CONTACT_POINT");
             int cassandraPort = Integer.parseInt(dotenv.get("COSMOS_PORT"));
-            String region = dotenv.get("COSMOS_REGION");
             String cassandraUsername = dotenv.get("COSMOS_USER_NAME");
             String cassandraPassword = dotenv.get("COSMOS_PASSWORD");
             cassandraKeyspace = dotenv.get("COSMOS_KEYSPACE");
             cassandraTable = dotenv.get("COSMOS_TABLE");
+            region = dotenv.get("COSMOS_REGION");
 
             System.out.println("COSMOS_CONFIG_PATH: "+COSMOS_CONFIG_PATH);
         
@@ -97,27 +98,22 @@ public class SyncTool {
     }
 
     public void read() {
-        Dotenv dotenv = Dotenv.load();
-
-        String keyspace = dotenv.get("CASSANDRA_KEYSPACE");
-        String table = dotenv.get("COSMOS_TABLE");
-        String region = dotenv.get("COSMOS_REGION");
         
-        System.out.println("Keyspace: "+keyspace + " Table: "+table + " Region: "+region);
         // set a variable to boolean false if region is central_us
-        boolean central_us;
-        if (region.equals("Central US")) {
-            central_us = false;
-        } else {
-            central_us = true;
-        }
-
+        
         
         try {
             connectCosmos();
+            boolean central_us;
+            if (region.equals("Central US")) {
+                central_us = false;
+            } else {
+                central_us = true;
+            }
+            System.out.println("Keyspace: "+cassandraKeyspace + " Table: "+cassandraTable + " Region: "+region);
             System.out.println("Connected to Cassandra.");
 
-            String query = String.format("SELECT * FROM %s.%s WHERE central_us = %s ALLOW FILTERING;", keyspace, table, central_us);
+            String query = String.format("SELECT * FROM %s.%s WHERE central_us = %s ALLOW FILTERING;", cassandraKeyspace, cassandraTable, central_us);
 
             while (true) {
                 ResultSet resultSet = session.execute(query);
